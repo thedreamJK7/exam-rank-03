@@ -74,7 +74,7 @@ static int	ft_putc(t_string *str, char c)
 	return (0);
 }
 
-char	*get_next_line1(int fd)
+char	*get_next_line(int fd)
 {
 	t_string	str;
 	char		c;

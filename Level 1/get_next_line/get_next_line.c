@@ -1,30 +1,6 @@
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <unistd.h>
+#include "get_next_line.h"
 
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 4096
-#endif
-
-#define BLOCK_SIZE 4096
-
-typedef struct s_string
-{
-	char *str;
-	size_t	len;
-	size_t	capa;
-}			t_string;
-
-typedef struct s_buffer
-{
-	size_t	n;
-	char	*bufp;
-	char	buffer[BUFFER_SIZE];
-}		t_buffer;
-
-int ft_getchar(fd)
+int ft_getchar(int fd)
 {
 	static	t_buffer buff;
 
@@ -56,7 +32,10 @@ int ft_putc(t_string *str, char c)
 		tmp = str->str;
 		str->str = malloc(sizeof(char) * (str->capa + BLOCK_SIZE));
 		if (!str->str)
+		{
+			free(tmp);
 			return (-13);
+		}
 		i = 0;
 		while (i < str->len)
 		{
@@ -90,7 +69,7 @@ char	*get_next_line(int fd)
 		if (c == EOF)
 			break ;
 		if (ft_putc(&str, c))
-			NULL ;
+			return (NULL);
 		if (c == '\n')
 			break;
 	}
