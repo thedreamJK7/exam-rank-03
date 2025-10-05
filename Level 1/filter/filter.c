@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 10
 
 int main(int argc, char const **argv)
 {
@@ -17,12 +17,23 @@ int main(int argc, char const **argv)
 	if (argc != 2 || !(*argv) || argv[1][0] == '\0')
 		return (1);
 	int	len_arg = strlen(argv[1]);
-	buffer = malloc(sizeof(char) * 4096);
+	buffer = malloc(sizeof(char) * capacity);
 	if (!buffer)
 		return (perror("Error"), 1);
-	while (bytes_read = read(0, buffer, sizeof(char) * capacity))
+	int size = 0;
+	while ((bytes_read = read(0, buffer + size, capacity - size)) > 0)
 	{
-		
+		size += bytes_read;
+		if (size >= capacity - 1)
+		{
+			capacity *= 2;
+			buffer = realloc(buffer, capacity);
+			if (!buffer)
+			{
+				perror("Error");
+				return (1);
+			}
+		}
 	}
 	if (bytes_read < 0)
 	{
@@ -31,13 +42,14 @@ int main(int argc, char const **argv)
 		return (1);
 	}
 	char *tmp = buffer;
-	while (memmem(buffer, strlen(buffer), argv[1], len_arg))
+	char *to_needle;
+	while ((to_needle = memmem(tmp, size - (tmp - buffer), argv[1], len_arg)))
 	{
-		char *to_needle = memmem(buffer, strlen(buffer), argv[1], len_arg);
 		for (size_t i = 0; i < len_arg; i++)
 			to_needle[i] = '*';
-		buffer += len_arg;
+		tmp = to_needle + len_arg;
 	}
-	printf("%s", tmp);
+	write(1, buffer, size);
+	free(buffer);
 	return (0);
 }
